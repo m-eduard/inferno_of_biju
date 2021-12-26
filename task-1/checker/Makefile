@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-m32 -g -fno-pie -no-pie
 ASM=nasm
 ASMFLAGS=-f elf32
-MAKEFLAGS += --silent
+#MAKEFLAGS += --silent
 
 checker: checker.o task1.o
 	$(CC) $(CFLAGS) -o $@ $^
