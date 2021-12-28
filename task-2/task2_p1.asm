@@ -38,15 +38,10 @@ check_multiples:
 
 	push ecx
 	pop eax
-	shl eax, 16
-	shr eax, 16
 
-	push ecx
-	pop edx
-	shr edx, 16				; put the high part in dx
-							; low is already in the ax
+	xor edx, edx
 	
-	div bx
+	div ebx
 
 	test edx, edx				; check if k * a % b == 0
 							; (where k * a is the current
@@ -63,10 +58,6 @@ check_multiples:
 set_return_val:
 	push ecx
 	pop eax
-
-	;; take care of the stack
-	; pop edx
-	; pop eax
 
 ;; Leave
 	push ebp			; move the stack pointer
