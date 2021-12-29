@@ -32,7 +32,6 @@ int factor(char *p, int *i) {
         // go past the number
         *i += sizeof_int(result);
 
-        // printf("Evaluated term of the sum is: %d\n", result);
         return result;
     }
     
@@ -48,16 +47,11 @@ int expression(char *p, int *i) {
     // a paranthesis was already opened
     int score = 0;
 
-    // while (p[*i] == '+' || p[*i] == '-') {
-    //     *i += 1;
-    //     result = (p[*i - 1] == '+') ? result + term(p, i) : result - term(p, i);
-    // }
-
     for (int k = orig_start; p[k] != '\0'; ++k) {
-        // if (*i > k) {
-        //     k = *i;
-        //     score = 0;
-        // }
+        if (*i > k) {
+            k = *i;
+            score = 0;
+        }
 
         // get a complete paranthese sequence
         if ((p[k] == '+' || p[k] == '-') && score == 0) {
@@ -87,58 +81,14 @@ int expression(char *p, int *i) {
 }
 
 int term(char *p, int *i) {
-    int orig = *i;
     int result = factor(p, i);
 
-    int score = 0;
-
-    // orig = *i;
-
-    // // *i will never exceed strlen(p)
+    // *i will never exceed strlen(p)
     while (p[*i] == '/' || p[*i] == '*') {
         *i += 1;
         result = (p[*i - 1] == '/') ? result / factor(p, i) : result * factor(p, i);
     }
 
-    // // printf("%d %d\n", orig, *i);
-    // for (int k = *i; k < strlen(p); ++k) {
-    //     // if (*i > k) {
-    //     //     k = *i;
-    //     //     score = 0;
-    //     // }
-
-    //     if ((p[k] == '*' || p[k] == '/') && score == 0) {
-    //         // printf("%d\n", k);
-    //         // this is the second(ish) term of the addition
-    //         *i = k + 1;
-
-    //         int current = factor(p, i);
-    //         result = (p[k] == '*') ? result * current : result / current;
-    //     }
-
-    //     // get a complete paranthese sequence
-    //     if ((p[k] == '+' || p[k] == '-') && score == 0) {
-    //         break;
-    //     }
-
-    //     if (p[k] == '(') {
-    //         score += 1;
-    //     } else if (p[k] == ')') {
-    //         score -= 1;
-    //     }
-
-    //     // this resulted by a call from a subsequence that was inside paranthesis,
-    //     // so when the last closing paranthesis is reached, the evaluated expression has to end
-    //     if (score < 0) {
-    //         // go past the enclosing brace
-    //         // printf("teapa\n");
-
-    //         // *i += 1;
-    //         break;
-    //     }
-    // }
-
-    // printf("Evaluated term of the sum is: %d\n", result);
     return result;
 }
 
