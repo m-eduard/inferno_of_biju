@@ -65,89 +65,54 @@ int term(char *p, int *i) {
 
     int score = 0;
 
-    // // *i will never exceed strlen(p)
-    // while (p[*i] == '/' || p[*i] == '*') {
-    //     *i += 1;
-    //     result = (p[*i - 1] == '/') ? result / factor(p, i) : result * factor(p, i);
-    // }
-
-    printf("the bad: %d\n", *i);
-    for (int k = *i; p[k] != '\0'; ++k) {
-        // if (*i > k) {
-        //     k = *i;
-        //     score = 0;
-        // }
-
-        if ((p[k] == '*' || p[k] == '/') && score == 0) {
-            printf("%d\n", k);
-            // this is the second(ish) term of the addition
-            *i = k + 1;
-
-            int current = factor(p, i);
-            result = (p[k] == '*') ? result * current : result / current;
-        }
-
-        // get a complete paranthese sequence
-        if ((p[k] == '+' || p[k] == '-') && score == 0) {
-            break;
-        }
-
-        if (p[k] == '(') {
-            score += 1;
-        } else if (p[k] == ')') {
-            score -= 1;
-        }
-
-        // this resulted by a call from a subsequence that was inside paranthesis,
-        // so when the last closing paranthesis is reached, the evaluated expression has to end
-        if (score < 0) {
-            // go past the enclosing brace
-            // printf("teapa\n");
-
-            // *i += 1;
-            break;
-        }
+    // *i will never exceed strlen(p)
+    while (p[*i] == '/' || p[*i] == '*') {
+        *i += 1;
+        result = (p[*i - 1] == '/') ? result / factor(p, i) : result * factor(p, i);
     }
+
+    // USE EITHER 68-72, OR WHAT IS BELLOW (BOTH DO THE SAME THING)
+    // printf("the bad: %d\n", *i);
+    // for (int k = *i; p[k] != '\0'; ++k) {
+    //     // if (*i > k) {
+    //     //     k = *i;
+    //     //     score = 0;
+    //     // }
+
+    //     if ((p[k] == '*' || p[k] == '/') && score == 0) {
+    //         printf("%d\n", k);
+    //         // this is the second(ish) term of the addition
+    //         *i = k + 1;
+
+    //         int current = factor(p, i);
+    //         result = (p[k] == '*') ? result * current : result / current;
+    //     }
+
+    //     // get a complete paranthese sequence
+    //     if ((p[k] == '+' || p[k] == '-') && score == 0) {
+    //         break;
+    //     }
+
+    //     if (p[k] == '(') {
+    //         score += 1;
+    //     } else if (p[k] == ')') {
+    //         score -= 1;
+    //     }
+
+    //     // this resulted by a call from a subsequence that was inside paranthesis,
+    //     // so when the last closing paranthesis is reached, the evaluated expression has to end
+    //     if (score < 0) {
+    //         // go past the enclosing brace
+    //         // printf("teapa\n");
+
+    //         // *i += 1;
+    //         break;
+    //     }
+    // }
 
     // printf("Evaluated term of the sum is: %d\n", result);
     return result;
 }
-
-
-// // Evaluates "factor" * "factor" or "factor" / "factor" expressions
-// int term(char *p, int *i) {
-//     printf("String 2nd: %s\n", p + *i);
-//     int result = factor(p, i);
-//     // printf("Term is: %d\n", result);
-
-//     int score = 0;
-
-//     while (*i < strlen(p) && (p[*i] == '/' || p[*i] == '*')) {
-//         *i += 1;
-//         result = (p[*i - 1] == '/') ? result / factor(p, i) : result * factor(p, i);
-//     }
-
-//     // for (int k = *i; k < strlen(p); ++k) {
-//     //     // if I reach a + / -, I have to end this, because the expression that I had
-//     //     // to compute ended
-//     //     if ((p[k] == '+' || p[k] == '-') && score == 0) {
-//     //         break;
-//     //     }
-
-//     //     if ((p[k] == '/' || p[k] == '*') && score == 0) {
-//     //         *i = k + 1; 
-//     //         result = (p[k] == '/') ? result / factor(p, i) : result * factor(p, i);
-//     //     }
-
-//     //     if (p[k] == '(') {
-//     //         result += 1;
-//     //     } else if (p[k] == ')') {
-//     //         result -= 1;
-//     //     }
-//     // }
-
-//     return result;
-// }
 
 // Evaluates "term" + "term" or "term" - "term" expressions
 int expression(char *p, int *i) {
