@@ -133,11 +133,29 @@ term:
         mov     edx, dword[ebp + 12]
 
 
+        push ebx
+
+
 ;; *i is updated in every factor() call, and the loop goes until the character
 ;; pointed by (p + *i) is different than '/' or '*'
 while_div_or_mul:
+        pop     ebx                     ; every iteration modifies ebx into ebx + *i
+        push    ebx
+
         add     ebx, dword[edx]         ; the address of the sign (p + *i)
-        cmp     byte[ebx], '/'         ; the current sign should be either '\', either '*'
+
+
+;         pusha
+
+;         push dword[ebx]
+;         push dword[ebx]
+;         push format2
+;         call printf
+;         add esp, 12
+
+;         popa
+
+        cmp     byte[ebx], '/'          ; the current sign should be either '/', either '*'
         je      eval_next_factor
         cmp     byte[ebx], '*'
         je      eval_next_factor
@@ -160,7 +178,7 @@ eval_next_factor:
         pop     ebx
         pop     eax
 
-        ;; Decide what operation should be made between eax and ebx
+;         ;; Decide what operation should be made between eax and ebx
         cmp     byte[ebx], '/'
         je      division
         jmp     multiplication
@@ -168,12 +186,16 @@ eval_next_factor:
 multiplication:
         ;; eax already contain the previous result that has to be
         ;; multiplied by ecx (result of factor())
+        push    edx
         imul    ecx
+        pop     edx
         jmp     next_iteration
 division:
+        push    edx
         xor     edx, edx
         cdq
         idiv    ecx
+        pop     edx
         jmp     next_iteration
 
 
