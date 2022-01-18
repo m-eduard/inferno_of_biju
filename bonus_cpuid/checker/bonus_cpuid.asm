@@ -11,7 +11,7 @@ cpu_manufact_id:
 	mov eax, [ebp + 8]
 
 	; in cdecl convention, only eax, ecx and edx are caller saved;
-	; since ebx is modified by cpuid, I have to save ebx on the stack in order to avoid a sefault
+	; so I have to save ebx on the stack in order to avoid a sefault
 	push ebx
 	
 	push eax
