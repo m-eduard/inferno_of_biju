@@ -2,6 +2,7 @@ global get_words
 global compare_func
 global sort
 
+;; libc functions
 extern strtok
 extern strcpy
 extern strlen
