@@ -3,66 +3,64 @@ section .text
 
 ;; int cmmmc(int a, int b)
 ;
-;; calculate least common multiple fow 2 numbers, a and b
+;; calculate least common multiple for 2 numbers, a and b
 cmmmc:
 
-;; Create the frame
-	push ebp			; old ebp
-	push esp
-	pop ebp				; new ebp
+;; Create the frame for the function
+	push 	ebp						; old ebp
+	push 	esp
+	pop 	ebp						; new ebp
 
-	push dword[ebp + 8]
-	pop eax				; a
-	push dword[ebp + 12]
-	pop ebx				; b
+	push 	dword[ebp + 8]
+	pop 	eax						; a
+	push 	dword[ebp + 12]
+	pop 	ebx						; b
 
-;; If a or b have a negative value, switch them.
-	cmp eax, 0
-	jge ignore1
-	neg eax
+;; If a or b have a negative value, switch them to positive.
+	cmp 	eax, 0
+	jge 	ignore1
+	neg 	eax
 ignore1:
-	cmp ebx, 0
-	jge ignore2
-	neg ebx
+	cmp 	ebx, 0
+	jge 	ignore2
+	neg 	ebx
 ignore2:
 
-	push eax
-	pop ecx				; ecx will be a multiple of eax (used in loop)
+	push 	eax
+	pop 	ecx						; ecx will be a multiple of eax
+									; (used in loop)
 
-;; Go through all the multiples of a, until either it's found a multiple of b,
-;; either a * b is reached
+;; Go through all the multiples of a, until either it's
+;; found a multiple of b, either a * b is reached
 check_multiples:
-	;; prepare these registers for division
-	push eax
-	push edx
+	; Prepare these registers for division
+	push 	eax
+	push 	edx
 
-	push ecx
-	pop eax
+	push 	ecx						; numerator (a * k, k is a natural number)
+	pop 	eax
 
-	xor edx, edx
-	
-	div ebx
+	xor 	edx, edx
+	div 	ebx
 
-	test edx, edx				; check if k * a % b == 0
-							; (where k * a is the current
-							; multiple of a, stored in ecx)
-	jz set_return_val
+	test	edx, edx				; check if k * a % b == 0 (where k * a is
+									; the current multiple of a, stored in ecx)
+	jz 		set_return_val
 
-	pop edx			; stack restoration
-	pop eax
+	pop 	edx						; stack restoration, after division
+	pop 	eax
 
-	add ecx, eax
-	jmp check_multiples
-
+	add 	ecx, eax				; next multiple of a, (k + 1) * a
+	jmp 	check_multiples
 
 set_return_val:
-	push ecx
-	pop eax
+	push 	ecx						; put the return value in eax
+	pop 	eax
 
 ;; Leave
-	push ebp			; move the stack pointer
-	pop esp				; to the current base pointer
+	push 	ebp						; move the stack pointer
+	pop 	esp						; to the current base pointer
 
-	pop ebp				; get the old base pointer
+	pop 	ebp						; get the old base pointer
 	
 	ret
