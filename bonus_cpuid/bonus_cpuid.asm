@@ -1,3 +1,6 @@
+section .data
+	format db 'This is: %hhu', 10, 0
+
 section .text
 	global cpu_manufact_id
 	global features
@@ -8,35 +11,83 @@ section .text
 ;  reads the manufacturer id string from cpuid and stores it in id_string
 cpu_manufact_id:
 	enter 	0, 0
-	mov eax, [ebp + 8]
 
-	; in cdecl convention, only eax, ecx and edx are caller saved;
-	; since ebx is modified by cpuid, I have to save ebx on the stack in order to avoid a sefault
-	push ebx
+	; In cdecl convention, only eax, ecx and edx are caller saved;
+	; Since ebx is modified by cpuid, I have to save ebx on the stack,
+	; in order to avoid a sefault.
+	push 	ebx
 	
-	push eax
-	mov eax, 0x0
+	mov 	eax, 0
 	cpuid
-	pop eax
 
-	mov [eax], ebx
-	mov [eax + 4], edx
-	mov [eax + 8], ecx
-	mov byte [eax + 12], 0
+	mov 	eax, dword[ebp + 8]
+	mov 	[eax], ebx
+	mov 	[eax + 4], edx
+	mov 	[eax + 8], ecx
 
 	pop ebx
-
 	leave
 	ret
 
-;; void features(char *vmx, char *rdrand, char *avx)
+;; void features(int *vmx, int *rdrand, int *avx)
 ;
 ;  checks whether vmx, rdrand and avx are supported by the cpu
 ;  if a feature is supported, 1 is written in the corresponding variable
 ;  0 is written otherwise
 features:
 	enter 	0, 0
-	
+	push	ebx
+
+	mov 	eax, 1			; when EAX = 1, cpuid returns cpu features
+	cpuid
+
+;; vmx availability is on the 6th least significant bit from ecx
+;; (the bit on index 5, if indexing starts from 0)
+	mov 	eax, dword[ebp + 8]
+	push 	ecx				; store the value returned from cpuid call
+	shl		ecx, 27
+	shr		ecx, 31
+	test	ecx, ecx
+	jz		no_vmx
+	mov		dword[eax], 1
+continue_vmx:
+	pop		ecx
+
+;; rdrand availability is on the 31th bit
+	mov 	eax, dword[ebp + 12]
+	push 	ecx				; store the value returned from cpuid call
+	shl 	ecx, 1
+	shr		ecx, 31
+	test 	ecx, ecx
+	jz 		no_rdrand
+	mov 	dword[eax], 1
+continue_rdrand:
+	pop		ecx
+
+;; avx availability is on the 29th bit
+	mov		eax, dword[ebp + 16]
+	push 	ecx				; store the value returned from cpuid call
+	shl 	ecx, 3
+	shr		ecx, 31
+	test 	ecx, ecx
+	jz 		no_avx
+	mov 	dword[eax], 1
+continue_avx:
+	pop		ecx
+	jmp		out
+
+no_vmx:
+	mov		dword[eax], 0
+	jmp 	continue_vmx
+no_rdrand:
+	mov		dword[eax], 0
+	jmp 	continue_rdrand
+no_avx:
+	mov 	dword[eax], 0
+	jmp		continue_avx
+
+out:
+	pop 	ebx
 	leave
 	ret
 
@@ -46,6 +97,27 @@ features:
 ;  cpu, and stores them in the corresponding parameters
 l2_cache_info:
 	enter 	0, 0
+	push 	ebx
+
+	mov		eax, 80000006h			; to get the L2 features
+	cpuid
+
+	; L2 cache line size: [7-0]bits
+	push	ecx
+	shl		ecx, 24					; 31 - 7
+	shr		ecx, 24					; 31 - 7
+
+	mov 	eax, dword[ebp + 8]
+	mov 	dword[eax], ecx
+	pop		ecx
+
+
+	; L2 cache size: [31-16]bits
+	shr		ecx, 16					; 31 - 15
+
+	mov 	eax, dword[ebp + 12]
+	mov 	dword[eax], ecx
 	
+	pop		ebx
 	leave
 	ret
