@@ -9,11 +9,11 @@ section .text
 intertwine:
 	enter 	0, 0
 
-	;; rdi - 1st argument
-	;; rsi - 2nd argument
-	;; rdx - 3rd argument
-	;; rcx - 4th argument
-	;; r8  - 5th argument
+	;; rdi - 1st argument (v1)
+	;; rsi - 2nd argument (v1_length)
+	;; rdx - 3rd argument (v2)
+	;; rcx - 4th argument (v2_length)
+	;; r8  - 5th argument (result_array)
 
 	;; Put the minimum length in the r9 register
 	cmp 	rsi, rcx
@@ -27,13 +27,13 @@ second_is_min:
 	jmp 	continue
 
 ;; Intertwine the first k elements of the given arrays,
-;; where k is the min(length1, length2)
+;; where k is min(length1, length2)
 continue:
-	mov 	rax, 0			; used as counter
+	mov 	rax, 0					; used as counter
 through_arrays:
-	mov 	r10d, dword[rdi + rax * 4]
+	mov 	r10d, dword[rdi + rax * 4]	; current element in the first array
 	mov		dword[r8 + (rax * 2) * 4], r10d
-	mov 	r10d, dword[rdx + rax * 4]
+	mov 	r10d, dword[rdx + rax * 4]	; current element in the second array
 	mov 	dword[r8 + (rax * 2 + 1) * 4], r10d
 
 	inc 	rax
@@ -55,7 +55,7 @@ through_first_array:
 
 ;; If the remaining elements was from the first array,
 ;; then the original rax was equal to the length
-;; of the second array => after increasing in the
+;; of the second array => after increasing it in the
 ;; first for, rax is greater than the 2nd array length,
 ;; so this for won't be executed;
 ;; Else, the current index from the result array was not

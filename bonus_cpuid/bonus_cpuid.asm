@@ -1,6 +1,3 @@
-section .data
-	format db 'This is: %hhu', 10, 0
-
 section .text
 	global cpu_manufact_id
 	global features
@@ -21,11 +18,12 @@ cpu_manufact_id:
 	cpuid
 
 	mov 	eax, dword[ebp + 8]
-	mov 	[eax], ebx
-	mov 	[eax + 4], edx
-	mov 	[eax + 8], ecx
 
-	pop ebx
+	mov 	[eax], ebx				; the first 4 bits of the name
+	mov 	[eax + 4], edx			; the second 4 bits sequence
+	mov 	[eax + 8], ecx			; the last 4 bits sequence from the name
+
+	pop 	ebx
 	leave
 	ret
 
@@ -38,16 +36,16 @@ features:
 	enter 	0, 0
 	push	ebx
 
-	mov 	eax, 1			; when EAX = 1, cpuid returns cpu features
+	mov 	eax, 1					; when EAX = 1, cpuid returns cpu features
 	cpuid
 
 ;; vmx availability is on the 6th least significant bit from ecx
 ;; (the bit on index 5, if indexing starts from 0)
 	mov 	eax, dword[ebp + 8]
-	push 	ecx				; store the value returned from cpuid call
-	shl		ecx, 27
+	push 	ecx						; store the value returned from cpuid call
+	shl		ecx, 27					; 31 - 5
 	shr		ecx, 31
-	test	ecx, ecx
+	test	ecx, ecx				; check if the bit was 1 or 0
 	jz		no_vmx
 	mov		dword[eax], 1
 continue_vmx:
@@ -55,8 +53,8 @@ continue_vmx:
 
 ;; rdrand availability is on the 31th bit
 	mov 	eax, dword[ebp + 12]
-	push 	ecx				; store the value returned from cpuid call
-	shl 	ecx, 1
+	push 	ecx					; store the value returned from cpuid call
+	shl 	ecx, 1				; 31 - 30
 	shr		ecx, 31
 	test 	ecx, ecx
 	jz 		no_rdrand
@@ -66,8 +64,8 @@ continue_rdrand:
 
 ;; avx availability is on the 29th bit
 	mov		eax, dword[ebp + 16]
-	push 	ecx				; store the value returned from cpuid call
-	shl 	ecx, 3
+	push 	ecx					; store the value returned from cpuid call
+	shl 	ecx, 3				; 31 - 29
 	shr		ecx, 31
 	test 	ecx, ecx
 	jz 		no_avx
@@ -103,14 +101,13 @@ l2_cache_info:
 	cpuid
 
 	; L2 cache line size: [7-0]bits
-	push	ecx
+	push	ecx						; save the ecx value after cpuid call
 	shl		ecx, 24					; 31 - 7
 	shr		ecx, 24					; 31 - 7
 
-	mov 	eax, dword[ebp + 8]
+	mov 	eax, dword[ebp + 8]		; use the given pointer to save the value
 	mov 	dword[eax], ecx
 	pop		ecx
-
 
 	; L2 cache size: [31-16]bits
 	shr		ecx, 16					; 31 - 15
